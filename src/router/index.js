@@ -1,0 +1,58 @@
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Login from '../components/Login.vue'
+import Home from '../components/home.vue'
+import Welcome from '../components/Welcome.vue'
+import Users from '../components/user/Users.vue'
+import Rights from '../components/power/Rights.vue'
+import Roles from '../components/power/Roles.vue'
+import Cate from '../components/goods/Cate.vue'
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
+Vue.use(VueRouter)
+const routes = [{
+    path: '/login',
+    component: Login
+  },
+  {
+    path: '/',
+    redirect: '/login'
+  },
+  {
+    path: '/home',
+    component: Home,
+    redirect: '/welcome',
+    children: [{
+        path: '/welcome',
+        component: Welcome
+      }, {
+        path: '/users',
+        component: Users
+      }, {
+        path: '/rights',
+        component: Rights
+      }, {
+        path: '/roles',
+        component: Roles
+      },
+      {
+        path: '/categories',
+        component: Cate
+      }
+    ]
+  }
+]
+const router = new VueRouter({
+  routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') next()
+  const tokenStr = window.sessionStorage.getItem('token')
+  if (!tokenStr) return next('/login')
+  next()
+})
+
+export default router
